@@ -133,7 +133,8 @@ public class RootWorkflowClientInvoker implements WorkflowClientCallsInterceptor
             .setSignalName(input.getSignalName())
             .setWorkflowExecution(input.getWorkflowExecution())
             .setIdentity(clientOptions.getIdentity())
-            .setNamespace(clientOptions.getNamespace());
+            .setNamespace(clientOptions.getNamespace())
+            .setHeader(Header.newBuilder().putAllFields(input.getHeader().getValues()).build());
 
     DataConverter dataConverterWitSignalContext =
         clientOptions
@@ -254,6 +255,8 @@ public class RootWorkflowClientInvoker implements WorkflowClientCallsInterceptor
   @Override
   public <R> QueryOutput<R> query(QueryInput<R> input) {
     WorkflowQuery.Builder query = WorkflowQuery.newBuilder().setQueryType(input.getQueryType());
+    query.setHeader(Header.newBuilder().putAllFields(input.getHeader().getValues()).build());
+
     DataConverter dataConverterWithWorkflowContext =
         clientOptions
             .getDataConverter()

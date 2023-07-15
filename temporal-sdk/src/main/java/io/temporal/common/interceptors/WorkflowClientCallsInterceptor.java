@@ -153,12 +153,17 @@ public interface WorkflowClientCallsInterceptor {
     private final WorkflowExecution workflowExecution;
     private final String signalName;
     private final Object[] arguments;
+    private final Header header;
 
     public WorkflowSignalInput(
-        WorkflowExecution workflowExecution, String signalName, Object[] signalArguments) {
+        WorkflowExecution workflowExecution,
+        String signalName,
+        Object[] signalArguments,
+        Header header) {
       this.workflowExecution = workflowExecution;
       this.signalName = signalName;
       this.arguments = signalArguments;
+      this.header = header;
     }
 
     public WorkflowExecution getWorkflowExecution() {
@@ -171,6 +176,10 @@ public interface WorkflowClientCallsInterceptor {
 
     public Object[] getArguments() {
       return arguments;
+    }
+
+    public Header getHeader() {
+      return header;
     }
   }
 
@@ -291,18 +300,21 @@ public interface WorkflowClientCallsInterceptor {
     private final Object[] arguments;
     private final Class<R> resultClass;
     private final Type resultType;
+    private final Header header;
 
     public QueryInput(
         WorkflowExecution workflowExecution,
         String queryType,
         Object[] arguments,
         Class<R> resultClass,
-        Type resultType) {
+        Type resultType,
+        Header header) {
       this.workflowExecution = workflowExecution;
       this.queryType = queryType;
       this.arguments = arguments;
       this.resultClass = resultClass;
       this.resultType = resultType;
+      this.header = header;
     }
 
     public WorkflowExecution getWorkflowExecution() {
@@ -323,6 +335,10 @@ public interface WorkflowClientCallsInterceptor {
 
     public Type getResultType() {
       return resultType;
+    }
+
+    public Header getHeader() {
+      return header;
     }
   }
 
@@ -468,8 +484,8 @@ public interface WorkflowClientCallsInterceptor {
   @Experimental
   final class PollWorkflowUpdateInput<R> {
     private final WorkflowExecution workflowExecution;
-    private long timeout;
-    private TimeUnit timeoutUnit;
+    private final long timeout;
+    private final TimeUnit timeoutUnit;
     private final Class<R> resultClass;
     private final Type resultType;
     private final String updateName;

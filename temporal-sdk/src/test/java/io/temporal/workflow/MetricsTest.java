@@ -596,7 +596,8 @@ public class MetricsTest {
           new SignalExternalInput(
               input.getExecution(),
               overrideSignalName.apply(input.getSignalName()),
-              overrideArgs.apply(args)));
+              overrideArgs.apply(args),
+              Header.empty()));
     }
   }
 }

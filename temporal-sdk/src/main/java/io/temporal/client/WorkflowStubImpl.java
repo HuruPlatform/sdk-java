@@ -88,7 +88,7 @@ class WorkflowStubImpl implements WorkflowStub {
     try {
       workflowClientInvoker.signal(
           new WorkflowClientCallsInterceptor.WorkflowSignalInput(
-              targetExecution, signalName, args));
+              targetExecution, signalName, args, Header.empty()));
     } catch (Exception e) {
       Throwable throwable = throwAsWorkflowFailureException(e, targetExecution);
       throw new WorkflowServiceException(targetExecution, workflowType.orElse(null), throwable);
@@ -275,7 +275,7 @@ class WorkflowStubImpl implements WorkflowStub {
       result =
           workflowClientInvoker.query(
               new WorkflowClientCallsInterceptor.QueryInput<>(
-                  targetExecution, queryType, args, resultClass, resultType));
+                  targetExecution, queryType, args, resultClass, resultType, Header.empty()));
     } catch (Exception e) {
       return throwAsWorkflowFailureExceptionForQuery(e, resultClass, targetExecution);
     }

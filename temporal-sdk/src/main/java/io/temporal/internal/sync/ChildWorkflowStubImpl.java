@@ -119,7 +119,7 @@ class ChildWorkflowStubImpl implements ChildWorkflowStub {
         outboundCallsInterceptor
             .signalExternalWorkflow(
                 new WorkflowOutboundCallsInterceptor.SignalExternalInput(
-                    execution.get(), signalName, args))
+                    execution.get(), signalName, args, Header.empty()))
             .getResult();
     if (AsyncInternal.isAsync()) {
       AsyncInternal.setAsyncResult(signaled);
