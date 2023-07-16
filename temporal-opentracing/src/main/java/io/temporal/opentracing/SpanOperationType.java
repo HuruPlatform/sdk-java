@@ -27,9 +27,7 @@ public enum SpanOperationType {
   START_CHILD_WORKFLOW("StartChildWorkflow"),
   START_CONTINUE_AS_NEW_WORKFLOW("StartContinueAsNewWorkflow"),
   START_ACTIVITY("StartActivity"),
-  RUN_ACTIVITY("RunActivity"),
-  SIGNAL_WORKFLOW("SignalWorkflow"),
-  QUERY_WORKFLOW("QueryWorkflow");
+  RUN_ACTIVITY("RunActivity");
 
   private final String defaultPrefix;
 

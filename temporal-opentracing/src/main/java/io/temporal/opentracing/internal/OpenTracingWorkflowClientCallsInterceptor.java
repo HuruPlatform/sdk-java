@@ -22,6 +22,7 @@ package io.temporal.opentracing.internal;
 
 import io.opentracing.Scope;
 import io.opentracing.Span;
+import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
 import io.temporal.common.interceptors.WorkflowClientCallsInterceptor;
 import io.temporal.common.interceptors.WorkflowClientCallsInterceptorBase;
@@ -82,9 +83,10 @@ public class OpenTracingWorkflowClientCallsInterceptor extends WorkflowClientCal
         contextAccessor.writeSpanContextToHeader(
             () ->
                 createWorkflowSpanBuilder(
-                        SpanOperationType.RUN_WORKFLOW,
                         input.getSignalName(),
-                        input.getWorkflowExecution().getWorkflowId())
+                        input.getWorkflowExecution().getWorkflowId(),
+                        input.getWorkflowExecution().getRunId(),
+                        tracer.activeSpan().context())
                     .start(),
             input.getHeader(),
             tracer);
@@ -102,9 +104,10 @@ public class OpenTracingWorkflowClientCallsInterceptor extends WorkflowClientCal
         contextAccessor.writeSpanContextToHeader(
             () ->
                 createWorkflowSpanBuilder(
-                        SpanOperationType.QUERY_WORKFLOW,
                         input.getQueryType(),
-                        input.getWorkflowExecution().getWorkflowId())
+                        input.getWorkflowExecution().getWorkflowId(),
+                        input.getWorkflowExecution().getRunId(),
+                        tracer.activeSpan().context())
                     .start(),
             input.getHeader(),
             tracer);
@@ -122,7 +125,7 @@ public class OpenTracingWorkflowClientCallsInterceptor extends WorkflowClientCal
   }
 
   private <R> Tracer.SpanBuilder createWorkflowSpanBuilder(
-      SpanOperationType operationType, String type, String workflowId) {
-    return spanFactory.createWorkflowStartSpan(tracer, operationType, type, workflowId);
+      String type, String workflowId, String runId, SpanContext spanContext) {
+    return spanFactory.createWorkflowRunSpan(tracer, type, workflowId, runId, spanContext);
   }
 }
