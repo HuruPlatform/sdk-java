@@ -1,12 +1,12 @@
-nexusPublishing {
-    // to release to sonatype use ./gradlew publishToSonatype
-    repositories {
-        sonatype {
-            username = project.hasProperty('ossrhUsername') ? project.property('ossrhUsername') : ''
-            password = project.hasProperty('ossrhPassword') ? project.property('ossrhPassword') : ''
-        }
-    }
-}
+//nexusPublishing {
+//    // to release to sonatype use ./gradlew publishToSonatype
+//    repositories {
+//        sonatype {
+//            username = project.hasProperty('ossrhUsername') ? project.property('ossrhUsername') : ''
+//            password = project.hasProperty('ossrhPassword') ? project.property('ossrhPassword') : ''
+//        }
+//    }
+//}
 
 subprojects {
     apply plugin: 'maven-publish'
@@ -26,13 +26,22 @@ subprojects {
             }
         }
         // to test local publishing use ./gradlew publish and comment nexusPublishing
-//        repositories {
-//            maven {
-//                def releasesRepoUrl = "$System.env.HOME/repos/releases"
-//                def snapshotsRepoUrl = "$System.env.HOME/repos/snapshots"
-//                url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
-//            }
-//        }
+        repositories {
+            maven {
+                def releasesRepoUrl = "$System.env.HOME/.m2/repository"
+                def snapshotsRepoUrl = "$System.env.HOME/.m2/repository"
+                url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+            }
+            maven {
+                def releasesRepoUrl = "https://artifactory-oss.shared.huru.co/artifactory/libs-release"
+                def snapshotsRepoUrl = "https://artifactory-oss.shared.huru.co/artifactory/libs-snapshot"
+                url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+                credentials {
+                    username "developer"
+                    password "AP9sPYqDaSKM8PBGtT4rikUUKx8"
+                }
+            }
+        }
     }
 
     if (project.hasProperty('signing.keyId')) {
