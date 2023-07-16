@@ -87,16 +87,17 @@ class WorkflowExecutionHandler {
 
   public void close() {}
 
-  public void handleSignal(String signalName, Optional<Payloads> input, long eventId) {
+  public void handleSignal(
+      String signalName, Optional<Payloads> input, long eventId, Header header) {
     try {
-      context.handleSignal(signalName, input, eventId);
+      context.handleSignal(signalName, input, eventId, header);
     } catch (Throwable e) {
       applyWorkflowFailurePolicyAndRethrow(e);
     }
   }
 
-  public Optional<Payloads> handleQuery(String type, Optional<Payloads> args) {
-    return context.handleQuery(type, args);
+  public Optional<Payloads> handleQuery(String type, Optional<Payloads> args, Header header) {
+    return context.handleQuery(type, args, header);
   }
 
   public void handleValidateUpdate(String updateName, Optional<Payloads> input, long eventId) {

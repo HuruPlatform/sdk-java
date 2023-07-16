@@ -82,4 +82,60 @@ public class OpenTracingWorkflowInboundCallsInterceptor
       workflowRunSpan.finish();
     }
   }
+
+  public void handleSignal(SignalInput input) {
+    Tracer tracer = options.getTracer();
+    SpanContext rootSpanContext =
+        contextAccessor.readSpanContextFromHeader(input.getHeader(), tracer);
+    Span workflowSignalSpan =
+        spanFactory
+            .createWorkflowRunSpan(
+                tracer,
+                Workflow.getInfo().getWorkflowType(),
+                Workflow.getInfo().getWorkflowId(),
+                Workflow.getInfo().getRunId(),
+                rootSpanContext)
+            .start();
+    try (Scope scope = tracer.scopeManager().activate(workflowSignalSpan)) {
+      super.handleSignal(input);
+    } catch (Throwable t) {
+      if (t instanceof DestroyWorkflowThreadError) {
+        spanFactory.logEviction(workflowSignalSpan);
+      } else {
+        spanFactory.logFail(workflowSignalSpan, t);
+      }
+      throw t;
+    } finally {
+      workflowSignalSpan.finish();
+    }
+  }
+
+  @Override
+  public QueryOutput handleQuery(QueryInput input) {
+    Tracer tracer = options.getTracer();
+    SpanContext rootSpanContext =
+        contextAccessor.readSpanContextFromHeader(input.getHeader(), tracer);
+    Span workflowQuerySpan =
+        spanFactory
+            .createWorkflowRunSpan(
+                tracer,
+                Workflow.getInfo().getWorkflowType(),
+                Workflow.getInfo().getWorkflowId(),
+                Workflow.getInfo().getRunId(),
+                rootSpanContext)
+            .start();
+    try (Scope scope = tracer.scopeManager().activate(workflowQuerySpan)) {
+      super.handleQuery(input);
+    } catch (Throwable t) {
+      if (t instanceof DestroyWorkflowThreadError) {
+        spanFactory.logEviction(workflowQuerySpan);
+      } else {
+        spanFactory.logFail(workflowQuerySpan, t);
+      }
+      throw t;
+    } finally {
+      workflowQuerySpan.finish();
+    }
+    return super.handleQuery(input);
+  }
 }

@@ -76,9 +76,53 @@ public class OpenTracingWorkflowClientCallsInterceptor extends WorkflowClientCal
     }
   }
 
+  @Override
+  public WorkflowSignalOutput signal(WorkflowSignalInput input) {
+    Span workflowStartSpan =
+        contextAccessor.writeSpanContextToHeader(
+            () ->
+                createWorkflowSpanBuilder(
+                        SpanOperationType.RUN_WORKFLOW,
+                        input.getSignalName(),
+                        input.getWorkflowExecution().getWorkflowId())
+                    .start(),
+            input.getHeader(),
+            tracer);
+    try (Scope ignored = tracer.scopeManager().activate(workflowStartSpan)) {
+      return super.signal(input);
+    } finally {
+      workflowStartSpan.finish();
+    }
+  }
+
+  @Override
+  public <R> QueryOutput<R> query(QueryInput<R> input) {
+
+    Span workflowQuerySpan =
+        contextAccessor.writeSpanContextToHeader(
+            () ->
+                createWorkflowSpanBuilder(
+                        SpanOperationType.QUERY_WORKFLOW,
+                        input.getQueryType(),
+                        input.getWorkflowExecution().getWorkflowId())
+                    .start(),
+            input.getHeader(),
+            tracer);
+    try (Scope ignored = tracer.scopeManager().activate(workflowQuerySpan)) {
+      return super.query(input);
+    } finally {
+      workflowQuerySpan.finish();
+    }
+  }
+
   private Tracer.SpanBuilder createWorkflowStartSpanBuilder(
       WorkflowStartInput input, SpanOperationType operationType) {
     return spanFactory.createWorkflowStartSpan(
         tracer, operationType, input.getWorkflowType(), input.getWorkflowId());
+  }
+
+  private <R> Tracer.SpanBuilder createWorkflowSpanBuilder(
+      SpanOperationType operationType, String type, String workflowId) {
+    return spanFactory.createWorkflowStartSpan(tracer, operationType, type, workflowId);
   }
 }

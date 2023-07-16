@@ -312,8 +312,9 @@ final class SyncWorkflowContext implements WorkflowContext, WorkflowOutboundCall
     signalDispatcher.handleInterceptedSignal(input);
   }
 
-  public void handleSignal(String signalName, Optional<Payloads> input, long eventId) {
-    signalDispatcher.handleSignal(signalName, input, eventId);
+  public void handleSignal(
+      String signalName, Optional<Payloads> input, long eventId, Header header) {
+    signalDispatcher.handleSignal(signalName, input, eventId, header);
   }
 
   public void handleValidateUpdate(String updateName, Optional<Payloads> input, long eventId) {
@@ -339,8 +340,8 @@ final class SyncWorkflowContext implements WorkflowContext, WorkflowOutboundCall
     return queryDispatcher.handleInterceptedQuery(input);
   }
 
-  public Optional<Payloads> handleQuery(String queryName, Optional<Payloads> input) {
-    return queryDispatcher.handleQuery(queryName, input);
+  public Optional<Payloads> handleQuery(String queryName, Optional<Payloads> input, Header header) {
+    return queryDispatcher.handleQuery(queryName, input, header);
   }
 
   private class ActivityCallback {

@@ -37,6 +37,7 @@ import io.temporal.api.common.v1.WorkflowExecution;
 import io.temporal.api.history.v1.HistoryEvent;
 import io.temporal.api.query.v1.WorkflowQuery;
 import io.temporal.api.workflowservice.v1.PollWorkflowTaskQueueResponse;
+import io.temporal.common.interceptors.Header;
 import io.temporal.common.reporter.TestStatsReporter;
 import io.temporal.internal.statemachines.UpdateProtocolCallback;
 import io.temporal.internal.worker.SingleWorkerOptions;
@@ -291,7 +292,8 @@ public class ReplayWorkflowRunTaskHandlerCacheTests {
           public void start(HistoryEvent event, ReplayWorkflowContext context) {}
 
           @Override
-          public void handleSignal(String signalName, Optional<Payloads> input, long eventId) {}
+          public void handleSignal(
+              String signalName, Optional<Payloads> input, long eventId, Header header) {}
 
           @Override
           public void handleUpdate(

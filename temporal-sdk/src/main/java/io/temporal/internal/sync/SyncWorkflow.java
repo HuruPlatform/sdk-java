@@ -31,6 +31,7 @@ import io.temporal.client.WorkflowClient;
 import io.temporal.common.context.ContextPropagator;
 import io.temporal.common.converter.DataConverter;
 import io.temporal.common.converter.DefaultDataConverter;
+import io.temporal.common.interceptors.Header;
 import io.temporal.internal.replay.ReplayWorkflow;
 import io.temporal.internal.replay.ReplayWorkflowContext;
 import io.temporal.internal.replay.WorkflowContext;
@@ -140,9 +141,11 @@ class SyncWorkflow implements ReplayWorkflow {
   }
 
   @Override
-  public void handleSignal(String signalName, Optional<Payloads> input, long eventId) {
+  public void handleSignal(
+      String signalName, Optional<Payloads> input, long eventId, Header header) {
     runner.executeInWorkflowThread(
-        "signal " + signalName, () -> workflowProc.handleSignal(signalName, input, eventId));
+        "signal " + signalName,
+        () -> workflowProc.handleSignal(signalName, input, eventId, header));
   }
 
   @Override
@@ -212,7 +215,7 @@ class SyncWorkflow implements ReplayWorkflow {
     }
     Optional<Payloads> args =
         query.hasQueryArgs() ? Optional.of(query.getQueryArgs()) : Optional.empty();
-    return workflowProc.handleQuery(query.getQueryType(), args);
+    return workflowProc.handleQuery(query.getQueryType(), args, new Header(query.getHeader()));
   }
 
   @Override

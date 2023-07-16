@@ -32,6 +32,7 @@ import io.temporal.api.protocol.v1.Message;
 import io.temporal.api.query.v1.WorkflowQuery;
 import io.temporal.api.update.v1.Input;
 import io.temporal.api.update.v1.Request;
+import io.temporal.common.interceptors.Header;
 import io.temporal.failure.CanceledFailure;
 import io.temporal.internal.common.ProtobufTimeUtils;
 import io.temporal.internal.common.UpdateMessage;
@@ -144,7 +145,11 @@ final class ReplayWorkflowExecutor {
     }
     Optional<Payloads> input =
         signalAttributes.hasInput() ? Optional.of(signalAttributes.getInput()) : Optional.empty();
-    this.workflow.handleSignal(signalAttributes.getSignalName(), input, event.getEventId());
+    this.workflow.handleSignal(
+        signalAttributes.getSignalName(),
+        input,
+        event.getEventId(),
+        new Header(signalAttributes.getHeader()));
   }
 
   public void handleWorkflowExecutionUpdated(UpdateMessage updateMessage) {
