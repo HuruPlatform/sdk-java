@@ -22,7 +22,6 @@ package io.temporal.opentracing.internal;
 
 import io.opentracing.Scope;
 import io.opentracing.Span;
-import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
 import io.temporal.common.interceptors.WorkflowClientCallsInterceptor;
 import io.temporal.common.interceptors.WorkflowClientCallsInterceptorBase;
@@ -85,8 +84,7 @@ public class OpenTracingWorkflowClientCallsInterceptor extends WorkflowClientCal
                 createWorkflowSpanBuilder(
                         input.getSignalName(),
                         input.getWorkflowExecution().getWorkflowId(),
-                        input.getWorkflowExecution().getRunId(),
-                        tracer.activeSpan().context())
+                        input.getWorkflowExecution().getRunId())
                     .start(),
             input.getHeader(),
             tracer);
@@ -106,8 +104,7 @@ public class OpenTracingWorkflowClientCallsInterceptor extends WorkflowClientCal
                 createWorkflowSpanBuilder(
                         input.getQueryType(),
                         input.getWorkflowExecution().getWorkflowId(),
-                        input.getWorkflowExecution().getRunId(),
-                        tracer.activeSpan().context())
+                        input.getWorkflowExecution().getRunId())
                     .start(),
             input.getHeader(),
             tracer);
@@ -125,7 +122,7 @@ public class OpenTracingWorkflowClientCallsInterceptor extends WorkflowClientCal
   }
 
   private <R> Tracer.SpanBuilder createWorkflowSpanBuilder(
-      String type, String workflowId, String runId, SpanContext spanContext) {
-    return spanFactory.createWorkflowRunSpan(tracer, type, workflowId, runId, spanContext);
+      String type, String workflowId, String runId) {
+    return spanFactory.createWorkflowRunSpan(tracer, type, workflowId, runId, null);
   }
 }
