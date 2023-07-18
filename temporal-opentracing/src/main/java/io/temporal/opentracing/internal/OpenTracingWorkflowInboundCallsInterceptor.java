@@ -24,11 +24,13 @@ import io.opentracing.Scope;
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
+import io.temporal.api.common.v1.Payload;
 import io.temporal.common.interceptors.WorkflowInboundCallsInterceptor;
 import io.temporal.common.interceptors.WorkflowInboundCallsInterceptorBase;
 import io.temporal.common.interceptors.WorkflowOutboundCallsInterceptor;
 import io.temporal.internal.sync.DestroyWorkflowThreadError;
 import io.temporal.opentracing.OpenTracingOptions;
+import io.temporal.opentracing.SpanOperationType;
 import io.temporal.workflow.Workflow;
 
 public class OpenTracingWorkflowInboundCallsInterceptor
@@ -89,9 +91,10 @@ public class OpenTracingWorkflowInboundCallsInterceptor
         contextAccessor.readSpanContextFromHeader(input.getHeader(), tracer);
     Span workflowSignalSpan =
         spanFactory
-            .createWorkflowRunSpan(
+            .createWorkflowOperationSpan(
+                SpanOperationType.SIGNAL_WORKFLOW,
                 tracer,
-                Workflow.getInfo().getWorkflowType(),
+                input.getSignalName(),
                 Workflow.getInfo().getWorkflowId(),
                 Workflow.getInfo().getRunId(),
                 rootSpanContext)
@@ -112,16 +115,24 @@ public class OpenTracingWorkflowInboundCallsInterceptor
 
   @Override
   public QueryOutput handleQuery(QueryInput input) {
+    // System.out.println(Workflow.getInfo());
+
+    // Payload wfIdPayload = Payload.newBuilder().setData(workflowId).build();
+    Payload wfIdPayload = input.getHeader().getValues().get("WORKFLOW_ID");
+
+    String workflowId = new String(wfIdPayload.getData().toByteArray());
+
     Tracer tracer = options.getTracer();
     SpanContext rootSpanContext =
         contextAccessor.readSpanContextFromHeader(input.getHeader(), tracer);
     Span workflowQuerySpan =
         spanFactory
-            .createWorkflowRunSpan(
+            .createWorkflowOperationSpan(
+                SpanOperationType.QUERY_WORKFLOW,
                 tracer,
-                Workflow.getInfo().getWorkflowType(),
-                Workflow.getInfo().getWorkflowId(),
-                Workflow.getInfo().getRunId(),
+                input.getQueryName(),
+                workflowId,
+                null,
                 rootSpanContext)
             .start();
     try (Scope scope = tracer.scopeManager().activate(workflowQuerySpan)) {

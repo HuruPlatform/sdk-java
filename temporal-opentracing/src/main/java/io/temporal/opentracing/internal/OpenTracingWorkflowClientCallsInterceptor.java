@@ -20,9 +20,11 @@
 
 package io.temporal.opentracing.internal;
 
+import com.google.protobuf.ByteString;
 import io.opentracing.Scope;
 import io.opentracing.Span;
 import io.opentracing.Tracer;
+import io.temporal.api.common.v1.Payload;
 import io.temporal.common.interceptors.WorkflowClientCallsInterceptor;
 import io.temporal.common.interceptors.WorkflowClientCallsInterceptorBase;
 import io.temporal.opentracing.OpenTracingOptions;
@@ -81,7 +83,7 @@ public class OpenTracingWorkflowClientCallsInterceptor extends WorkflowClientCal
     Span workflowStartSpan =
         contextAccessor.writeSpanContextToHeader(
             () ->
-                createWorkflowSpanBuilder(
+                    createWorkflowSignalSpanBuilder(
                         input.getSignalName(),
                         input.getWorkflowExecution().getWorkflowId(),
                         input.getWorkflowExecution().getRunId())
@@ -97,14 +99,18 @@ public class OpenTracingWorkflowClientCallsInterceptor extends WorkflowClientCal
 
   @Override
   public <R> QueryOutput<R> query(QueryInput<R> input) {
+    ByteString workflowId =
+        ByteString.copyFrom(input.getWorkflowExecution().getWorkflowId().getBytes());
+    Payload wfIdPayload = Payload.newBuilder().setData(workflowId).build();
+    input.getHeader().getValues().put("WORKFLOW_ID", wfIdPayload);
 
     Span workflowQuerySpan =
         contextAccessor.writeSpanContextToHeader(
             () ->
-                createWorkflowSpanBuilder(
+                    createWorkflowQuerySpanBuilder(
                         input.getQueryType(),
                         input.getWorkflowExecution().getWorkflowId(),
-                        input.getWorkflowExecution().getRunId())
+                        null)
                     .start(),
             input.getHeader(),
             tracer);
@@ -121,8 +127,11 @@ public class OpenTracingWorkflowClientCallsInterceptor extends WorkflowClientCal
         tracer, operationType, input.getWorkflowType(), input.getWorkflowId());
   }
 
-  private <R> Tracer.SpanBuilder createWorkflowSpanBuilder(
-      String type, String workflowId, String runId) {
-    return spanFactory.createWorkflowRunSpan(tracer, type, workflowId, runId, null);
+  private <R> Tracer.SpanBuilder createWorkflowSignalSpanBuilder(String type, String workflowId, String runId) {
+    return spanFactory.createWorkflowSignalSpan(tracer, type, workflowId, runId);
+  }
+
+  private <R> Tracer.SpanBuilder createWorkflowQuerySpanBuilder(String type, String workflowId, String runId) {
+    return spanFactory.createWorkflowQuerySpan(tracer, type, workflowId, runId);
   }
 }
