@@ -30,7 +30,6 @@ import io.temporal.common.interceptors.WorkflowInboundCallsInterceptorBase;
 import io.temporal.common.interceptors.WorkflowOutboundCallsInterceptor;
 import io.temporal.internal.sync.DestroyWorkflowThreadError;
 import io.temporal.opentracing.OpenTracingOptions;
-import io.temporal.opentracing.SpanOperationType;
 import io.temporal.workflow.Workflow;
 
 public class OpenTracingWorkflowInboundCallsInterceptor
@@ -91,13 +90,11 @@ public class OpenTracingWorkflowInboundCallsInterceptor
         contextAccessor.readSpanContextFromHeader(input.getHeader(), tracer);
     Span workflowSignalSpan =
         spanFactory
-            .createWorkflowOperationSpan(
-                SpanOperationType.SIGNAL_WORKFLOW,
+            .createWorkflowSignalSpan(
                 tracer,
                 input.getSignalName(),
                 Workflow.getInfo().getWorkflowId(),
-                Workflow.getInfo().getRunId(),
-                rootSpanContext)
+                Workflow.getInfo().getRunId())
             .start();
     try (Scope scope = tracer.scopeManager().activate(workflowSignalSpan)) {
       super.handleSignal(input);
@@ -126,15 +123,7 @@ public class OpenTracingWorkflowInboundCallsInterceptor
     SpanContext rootSpanContext =
         contextAccessor.readSpanContextFromHeader(input.getHeader(), tracer);
     Span workflowQuerySpan =
-        spanFactory
-            .createWorkflowOperationSpan(
-                SpanOperationType.QUERY_WORKFLOW,
-                tracer,
-                input.getQueryName(),
-                workflowId,
-                null,
-                rootSpanContext)
-            .start();
+        spanFactory.createWorkflowQuerySpan(tracer, input.getQueryName(), workflowId, null).start();
     try (Scope scope = tracer.scopeManager().activate(workflowQuerySpan)) {
       super.handleQuery(input);
     } catch (Throwable t) {

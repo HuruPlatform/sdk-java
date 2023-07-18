@@ -103,8 +103,10 @@ public class OpenTracingWorkflowOutboundCallsInterceptor
   public SignalExternalOutput signalExternalWorkflow(SignalExternalInput input) {
     if (!WorkflowUnsafe.isReplaying()) {
       Span childWorkflowStartSpan =
-              contextAccessor.writeSpanContextToHeader(
-                      () -> createSignalExternalWorkflowStartSpanBuilder(input).start(), input.getHeader(), tracer);
+          contextAccessor.writeSpanContextToHeader(
+              () -> createSignalExternalWorkflowStartSpanBuilder(input).start(),
+              input.getHeader(),
+              tracer);
       try (Scope ignored = tracer.scopeManager().activate(childWorkflowStartSpan)) {
         return super.signalExternalWorkflow(input);
       } finally {
@@ -114,6 +116,7 @@ public class OpenTracingWorkflowOutboundCallsInterceptor
       return super.signalExternalWorkflow(input);
     }
   }
+
   @Override
   public void continueAsNew(ContinueAsNewInput input) {
     if (!WorkflowUnsafe.isReplaying()) {
@@ -173,12 +176,13 @@ public class OpenTracingWorkflowOutboundCallsInterceptor
         parentWorkflowInfo.getRunId());
   }
 
-  private <R> Tracer.SpanBuilder createSignalExternalWorkflowStartSpanBuilder(SignalExternalInput input) {
+  private <R> Tracer.SpanBuilder createSignalExternalWorkflowStartSpanBuilder(
+      SignalExternalInput input) {
     WorkflowInfo parentWorkflowInfo = Workflow.getInfo();
-    return spanFactory.createSignalWorkflowStartSpan(
-            tracer,
-            input.getSignalName(),
-            input.getExecution().getWorkflowId(),
-            input.getExecution().getRunId());
+    return spanFactory.createWorkflowSignalSpan(
+        tracer,
+        input.getSignalName(),
+        input.getExecution().getWorkflowId(),
+        input.getExecution().getRunId());
   }
 }
