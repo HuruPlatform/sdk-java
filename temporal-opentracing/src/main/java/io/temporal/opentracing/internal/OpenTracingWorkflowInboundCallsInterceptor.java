@@ -114,13 +114,6 @@ public class OpenTracingWorkflowInboundCallsInterceptor
 
   @Override
   public QueryOutput handleQuery(QueryInput input) {
-    // System.out.println(Workflow.getInfo());
-
-    // Payload wfIdPayload = Payload.newBuilder().setData(workflowId).build();
-    Payload wfIdPayload = input.getHeader().getValues().get("WORKFLOW_ID");
-
-    String workflowId = new String(wfIdPayload.getData().toByteArray());
-
     Tracer tracer = options.getTracer();
     SpanContext rootSpanContext =
         contextAccessor.readSpanContextFromHeader(input.getHeader(), tracer);
