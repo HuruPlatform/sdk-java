@@ -183,6 +183,7 @@ public class OpenTracingWorkflowOutboundCallsInterceptor
         tracer,
         input.getSignalName(),
         input.getExecution().getWorkflowId(),
-        input.getExecution().getRunId(), null);
+        input.getExecution().getRunId(),
+        null);
   }
 }

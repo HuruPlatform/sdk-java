@@ -126,11 +126,8 @@ public class OpenTracingWorkflowInboundCallsInterceptor
     Span workflowQuerySpan =
         spanFactory
             .createWorkflowQuerySpan(
-                tracer,
-                input.getQueryName(),
-                workflowId,
-                null,
-                rootSpanContext).start();
+                tracer, input.getQueryName(), workflowId, null, rootSpanContext)
+            .start();
     try (Scope scope = tracer.scopeManager().activate(workflowQuerySpan)) {
       super.handleQuery(input);
     } catch (Throwable t) {
