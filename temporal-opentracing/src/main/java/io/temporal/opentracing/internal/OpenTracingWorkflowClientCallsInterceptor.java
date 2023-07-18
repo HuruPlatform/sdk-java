@@ -20,11 +20,9 @@
 
 package io.temporal.opentracing.internal;
 
-import com.google.protobuf.ByteString;
 import io.opentracing.Scope;
 import io.opentracing.Span;
 import io.opentracing.Tracer;
-import io.temporal.api.common.v1.Payload;
 import io.temporal.common.interceptors.WorkflowClientCallsInterceptor;
 import io.temporal.common.interceptors.WorkflowClientCallsInterceptorBase;
 import io.temporal.opentracing.OpenTracingOptions;
@@ -99,11 +97,6 @@ public class OpenTracingWorkflowClientCallsInterceptor extends WorkflowClientCal
 
   @Override
   public <R> QueryOutput<R> query(QueryInput<R> input) {
-    ByteString workflowId =
-        ByteString.copyFrom(input.getWorkflowExecution().getWorkflowId().getBytes());
-    Payload wfIdPayload = Payload.newBuilder().setData(workflowId).build();
-    input.getHeader().getValues().put("WORKFLOW_ID", wfIdPayload);
-
     Span workflowQuerySpan =
         contextAccessor.writeSpanContextToHeader(
             () ->

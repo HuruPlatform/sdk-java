@@ -31,6 +31,7 @@ import io.temporal.common.interceptors.WorkflowOutboundCallsInterceptor;
 import io.temporal.internal.sync.DestroyWorkflowThreadError;
 import io.temporal.opentracing.OpenTracingOptions;
 import io.temporal.workflow.Workflow;
+import org.slf4j.MDC;
 
 public class OpenTracingWorkflowInboundCallsInterceptor
     extends WorkflowInboundCallsInterceptorBase {
@@ -93,8 +94,8 @@ public class OpenTracingWorkflowInboundCallsInterceptor
             .createWorkflowSignalSpan(
                 tracer,
                 input.getSignalName(),
-                Workflow.getInfo().getWorkflowId(),
-                Workflow.getInfo().getRunId(),
+                MDC.get("WorkflowId"),
+                MDC.get("RunId"),
                 rootSpanContext)
             .start();
     try (Scope scope = tracer.scopeManager().activate(workflowSignalSpan)) {
