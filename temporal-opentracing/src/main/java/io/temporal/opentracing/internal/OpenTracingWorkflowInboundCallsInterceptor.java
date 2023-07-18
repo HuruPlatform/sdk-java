@@ -127,7 +127,8 @@ public class OpenTracingWorkflowInboundCallsInterceptor
     Span workflowQuerySpan =
         spanFactory
             .createWorkflowQuerySpan(
-                tracer, input.getQueryName(),
+                tracer,
+                input.getQueryName(),
                 MDC.get("WorkflowId"),
                 MDC.get("RunId"),
                 rootSpanContext)
