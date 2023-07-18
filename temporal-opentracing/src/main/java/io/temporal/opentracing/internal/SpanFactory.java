@@ -106,7 +106,7 @@ public class SpanFactory {
   }
 
   public Tracer.SpanBuilder createWorkflowSignalSpan(
-      Tracer tracer, String signalName, String workflowId, String runId) {
+      Tracer tracer, String signalName, String workflowId, String runId, SpanContext spanContext) {
     SpanCreationContext context =
         SpanCreationContext.newBuilder()
             .setSpanOperationType(SpanOperationType.SIGNAL_WORKFLOW)
@@ -114,11 +114,11 @@ public class SpanFactory {
             .setWorkflowId(workflowId)
             .setRunId(runId)
             .build();
-    return createSpan(context, tracer, null, References.FOLLOWS_FROM);
+    return createSpan(context, tracer, spanContext, References.FOLLOWS_FROM);
   }
 
   public Tracer.SpanBuilder createWorkflowQuerySpan(
-      Tracer tracer, String queryName, String workflowId, String runId) {
+      Tracer tracer, String queryName, String workflowId, String runId, SpanContext spanContext) {
     SpanCreationContext context =
         SpanCreationContext.newBuilder()
             .setSpanOperationType(SpanOperationType.QUERY_WORKFLOW)
@@ -126,7 +126,7 @@ public class SpanFactory {
             .setWorkflowId(workflowId)
             .setRunId(runId)
             .build();
-    return createSpan(context, tracer, null, References.FOLLOWS_FROM);
+    return createSpan(context, tracer, spanContext, References.FOLLOWS_FROM);
   }
 
   public Tracer.SpanBuilder createActivityStartSpan(

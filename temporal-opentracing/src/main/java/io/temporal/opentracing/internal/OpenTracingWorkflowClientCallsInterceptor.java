@@ -127,11 +127,11 @@ public class OpenTracingWorkflowClientCallsInterceptor extends WorkflowClientCal
 
   private <R> Tracer.SpanBuilder createWorkflowSignalSpanBuilder(
       String type, String workflowId, String runId) {
-    return spanFactory.createWorkflowSignalSpan(tracer, type, workflowId, runId);
+    return spanFactory.createWorkflowSignalSpan(tracer, type, workflowId, runId,null);
   }
 
   private <R> Tracer.SpanBuilder createWorkflowQuerySpanBuilder(
       String type, String workflowId, String runId) {
-    return spanFactory.createWorkflowQuerySpan(tracer, type, workflowId, runId);
+    return spanFactory.createWorkflowQuerySpan(tracer, type, workflowId, runId, null);
   }
 }
